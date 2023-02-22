@@ -4,25 +4,26 @@ use winit::{
     window::WindowBuilder,
 };
 
+mod camera;
 mod state;
-mod vertex;
 mod texture;
-
+mod vertex;
 
 use state::State;
 
 pub async fn run() {
     env_logger::init();
     let event_loop = EventLoop::new();
+
     let window = WindowBuilder::new().build(&event_loop).unwrap();
 
-    let mut state = State::new(&window).await;
+    let mut state = State::new(window).await;
 
     event_loop.run(move |event, _, control_flow| match event {
         Event::WindowEvent {
             ref event,
             window_id,
-        } if window_id == window.id() => {
+        } if window_id == state.window().id() => {
             if !state.input(event) {
                 match event {
                     WindowEvent::CloseRequested
@@ -46,7 +47,7 @@ pub async fn run() {
                 }
             }
         }
-        Event::RedrawRequested(window_id) if window_id == window.id() => {
+        Event::RedrawRequested(window_id) if window_id == state.window().id() => {
             state.update();
             match state.render() {
                 Ok(_) => {}
@@ -58,7 +59,7 @@ pub async fn run() {
         Event::MainEventsCleared => {
             // RedrawRequested will only trigger once, unless we manually
             // request it.
-            window.request_redraw();
+            state.window().request_redraw();
         }
         _ => {}
     });
