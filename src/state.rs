@@ -5,7 +5,7 @@ use crate::camera;
 use crate::texture;
 use crate::vertex::{Vertex, VERTICES};
 
-const INDICES: &[u16] = &[0, 1, 4, 1, 2, 4, 2, 3, 4, 0];
+const INDICES: &[u16] = &[0, 1, 3, 1, 2, 3];
 
 pub struct State {
     surface: wgpu::Surface,
@@ -189,7 +189,13 @@ impl State {
                 entry_point: "fs_main",
                 targets: &[Some(wgpu::ColorTargetState {
                     format: config.format,
-                    blend: Some(wgpu::BlendState::REPLACE),
+                    blend: Some(wgpu::BlendState{
+                        color: wgpu::BlendComponent{
+                        src_factor: wgpu::BlendFactor::SrcAlpha,
+                        dst_factor: wgpu::BlendFactor::OneMinusSrcAlpha,
+                        operation: wgpu::BlendOperation::Add,},
+                    alpha: wgpu::BlendComponent::OVER
+                    }),
                     write_mask: wgpu::ColorWrites::ALL,
                 })],
             }),
